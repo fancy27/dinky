@@ -81,6 +81,14 @@ public interface UserService extends ISuperService<User> {
     Result<UserDTO> loginUser(LoginDTO loginDTO);
 
     /**
+     * Exchange Webwaytoken for a Dinky session.
+     *
+     * @param webwayToken JWT from the Webwaytoken request header
+     * @return {@link Result}{@link UserDTO}
+     */
+    Result<UserDTO> loginByZtway(String webwayToken);
+
+    /**
      * get user by username
      *
      * @param username username

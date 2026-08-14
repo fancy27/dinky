@@ -271,6 +271,12 @@ public enum Status {
 
     LDAP_LOGIN_TEST_SUCCESS(18008, "ldap.login.test.success"),
 
+    ZTWAY_DISABLED(18009, "ztway.disabled"),
+    ZTWAY_TOKEN_MISSING(18010, "ztway.token.missing"),
+    ZTWAY_TOKEN_INVALID(18011, "ztway.token.invalid"),
+    ZTWAY_USERNAME_MISSING(18012, "ztway.username.missing"),
+    ZTWAY_DEFAULT_TENANT_NOFOUND(18013, "ztway.default.tenant.nofound"),
+
     /**
      * datastudio about
      */
@@ -472,6 +478,13 @@ public enum Status {
             204, "sys.flink.settings.flinkHistoryServerArchiveRefreshInterval"),
     SYS_FLINK_SETTINGS_FLINK_HISTORY_SERVER_ARCHIVE_REFRESH_INTERVAL_NOTE(
             205, "sys.flink.settings.flinkHistoryServerArchiveRefreshInterval.note"),
+
+    SYS_ZTWAY_SETTINGS_ENABLE(206, "sys.ztway.settings.enable"),
+    SYS_ZTWAY_SETTINGS_ENABLE_NOTE(207, "sys.ztway.settings.enable.note"),
+    SYS_ZTWAY_SETTINGS_RS256_PUBLIC_KEY(208, "sys.ztway.settings.rs256PublicKey"),
+    SYS_ZTWAY_SETTINGS_RS256_PUBLIC_KEY_NOTE(209, "sys.ztway.settings.rs256PublicKey.note"),
+    SYS_ZTWAY_SETTINGS_DEFAULT_TENANT(210, "sys.ztway.settings.defaultTenant"),
+    SYS_ZTWAY_SETTINGS_DEFAULT_TENANT_NOTE(211, "sys.ztway.settings.defaultTenant.note"),
     ;
     private final int code;
     private final String key;

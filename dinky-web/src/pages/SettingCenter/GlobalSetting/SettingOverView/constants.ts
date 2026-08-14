@@ -23,6 +23,7 @@ export enum SettingConfigKeyEnum {
   MAVEN = 'Maven',
   DOLPHIN_SCHEDULER = 'DolphinScheduler',
   LDAP = 'LDAP',
+  ZTWAY = 'ztway',
   METRIC = 'Metric',
   RESOURCE = 'Resource',
   ENV = 'Env'

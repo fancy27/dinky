@@ -55,6 +55,7 @@ import org.dinky.service.TenantService;
 import org.dinky.service.UserRoleService;
 import org.dinky.service.UserService;
 import org.dinky.service.UserTenantService;
+import org.dinky.utils.ZtwayJwtVerifier;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -74,6 +75,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -184,7 +186,22 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
             // Handle authentication exceptions and return the corresponding error status
             return Result.authorizeFailed(e.getStatus());
         }
+        return completeLogin(user, loginDTO.isAutoLogin());
+    }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<UserDTO> loginByZtway(String webwayToken) {
+        User user;
+        try {
+            user = ztwayLogin(webwayToken);
+        } catch (AuthException e) {
+            return Result.authorizeFailed(e.getStatus());
+        }
+        return completeLogin(user, true);
+    }
+
+    private Result<UserDTO> completeLogin(User user, boolean autoLogin) {
         // Check if the user is enabled
         if (!user.getEnabled()) {
             loginLogService.saveLoginLog(user, Status.USER_DISABLED_BY_ADMIN);
@@ -199,7 +216,7 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
 
         // Perform login using StpUtil (Assuming it handles the session management)
         Integer userId = user.getId();
-        StpUtil.login(userId, loginDTO.isAutoLogin());
+        StpUtil.login(userId, autoLogin);
 
         // save login log record
         loginLogService.saveLoginLog(user, Status.LOGIN_SUCCESS);
@@ -311,6 +328,38 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
         // If local database have the user and ldap login is pass,
         // Return user from local database
         return userFromLocal;
+    }
+
+    private User ztwayLogin(String webwayToken) throws AuthException {
+        SystemConfiguration configuration = SystemConfiguration.getInstances();
+        if (!Boolean.TRUE.equals(configuration.getZtwayEnable().getValue())) {
+            throw new AuthException(Status.ZTWAY_DISABLED);
+        }
+        ZtwayJwtVerifier.ZtwayClaims claims =
+                ZtwayJwtVerifier.verify(webwayToken, configuration.getZtwayRs256PublicKey().getValue());
+        User user = getUserByUsername(claims.getUsername());
+        if (Asserts.isNotNull(user)) {
+            return user;
+        }
+        String defaultTenantCode = configuration.getZtwayDefaultTenant().getValue();
+        Tenant tenant = tenantService.getTenantByTenantCode(defaultTenantCode);
+        if (Asserts.isNull(tenant)) {
+            throw new AuthException(Status.ZTWAY_DEFAULT_TENANT_NOFOUND);
+        }
+        User created = new User();
+        created.setUsername(claims.getUsername());
+        created.setNickname(StrUtil.blankToDefault(claims.getName(), claims.getUsername()));
+        created.setUserType(UserType.ZTWAY.getCode());
+        created.setEnabled(true);
+        created.setSuperAdminFlag(false);
+        created.setIsDelete(false);
+        save(created);
+
+        User saved = getUserByUsername(claims.getUsername());
+        List<Integer> userIds = getUserIdsByTenantId(tenant.getId());
+        userIds.add(saved.getId());
+        tenantService.assignUserToTenant(new AssignUserToTenantDTO(tenant.getId(), userIds));
+        return saved;
     }
 
     private UserDTO refreshUserInfo(User user) {

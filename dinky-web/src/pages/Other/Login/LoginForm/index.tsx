@@ -22,7 +22,7 @@ import { l } from '@/utils/intl';
 import { GithubOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { DefaultFooter, ProForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-components';
 import { SubmitterProps } from '@ant-design/pro-form/es/components';
-import { Col, Flex, Row } from 'antd';
+import { Button, Col, Flex, Row } from 'antd';
 import React, { useState } from 'react';
 import style from '../../../../global.less';
 import Lottie from 'react-lottie';
@@ -33,15 +33,18 @@ import { GLOBAL_SETTING_KEYS } from '@/types/SettingCenter/data.d';
 
 type LoginFormProps = {
   onSubmit: (values: any) => Promise<void>;
+  onZtwayLogin: () => Promise<void>;
 };
 
 const LoginForm: React.FC<LoginFormProps> = (props) => {
-  const { onSubmit } = props;
+  const { onSubmit, onZtwayLogin } = props;
 
   const [form] = ProForm.useForm();
 
   const [submitting, setSubmitting] = useState(false);
+  const [ztwaySubmitting, setZtwaySubmitting] = useState(false);
   const [ldapEnabled, setLdapEnabled] = useState(false);
+  const [ztwayEnabled, setZtwayEnabled] = useState(false);
 
   useRequest(API_CONSTANTS.GET_NEEDED_CFG, {
     onSuccess: (res) => {
@@ -49,6 +52,7 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
         history.push('/welcome');
       }
       setLdapEnabled(res[GLOBAL_SETTING_KEYS.SYS_LDAP_SETTINGS_ENABLE]);
+      setZtwayEnabled(res[GLOBAL_SETTING_KEYS.SYS_ZTWAY_SETTINGS_ENABLE]);
       form.setFieldValue('ldapLogin', res[GLOBAL_SETTING_KEYS.SYS_LDAP_SETTINGS_ENABLE]);
     }
   });
@@ -57,6 +61,12 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
     setSubmitting(true);
     await onSubmit({ ...form.getFieldsValue() });
     setSubmitting(false);
+  };
+
+  const handleClickZtwayLogin = async () => {
+    setZtwaySubmitting(true);
+    await onZtwayLogin();
+    setZtwaySubmitting(false);
   };
 
   const renderLoginForm = () => {
@@ -175,6 +185,19 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
                 >
                   {renderLoginForm()}
                 </ProForm>
+                {ztwayEnabled && (
+                  <Button
+                    type='default'
+                    htmlType='button'
+                    size='large'
+                    shape='round'
+                    loading={ztwaySubmitting}
+                    onClick={handleClickZtwayLogin}
+                    style={{ width: '100%', marginTop: 12 }}
+                  >
+                    {l('login.ztway')}
+                  </Button>
+                )}
               </Col>
             </Row>
             <DefaultFooter

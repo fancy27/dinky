@@ -17,8 +17,8 @@
  *
  */
 
-export const UserType = { LOCAL: 0, LDAP: 1 };
+export const UserType = { LOCAL: 0, LDAP: 1, ZTWAY: 2 };
 
 export const USER_TYPE_ENUM = () => {
-  return { 0: 'LOCAL', 1: 'LDAP' };
+  return { 0: 'LOCAL', 1: 'LDAP', 2: 'ZTWAY' };
 };

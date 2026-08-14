@@ -87,6 +87,7 @@ public class AppConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**", "/openapi/**")
                 .excludePathPatterns(
                         "/api/login",
+                        "/api/login/ztway",
                         "/api/sysConfig/getNeededCfg",
                         "/api/sysConfig/setInitConfig",
                         "/download/**",
@@ -95,7 +96,11 @@ public class AppConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(new TenantInterceptor())
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/login", "/api/sysConfig/getNeededCfg", "/api/sysConfig/setInitConfig")
+                .excludePathPatterns(
+                        "/api/login",
+                        "/api/login/ztway",
+                        "/api/sysConfig/getNeededCfg",
+                        "/api/sysConfig/setInitConfig")
                 .addPathPatterns("/api/alertGroup/**")
                 .addPathPatterns("/api/alertHistory/**")
                 .addPathPatterns("/api/alertInstance/**")

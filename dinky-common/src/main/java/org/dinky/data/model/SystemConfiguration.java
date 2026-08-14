@@ -243,6 +243,21 @@ public class SystemConfiguration {
             .defaultValue(false)
             .note(Status.SYS_LDAP_SETTINGS_ENABLE_NOTE);
 
+    private final Configuration<Boolean> ztwayEnable = key(Status.SYS_ZTWAY_SETTINGS_ENABLE)
+            .booleanType()
+            .defaultValue(false)
+            .note(Status.SYS_ZTWAY_SETTINGS_ENABLE_NOTE);
+
+    private final Configuration<String> ztwayRs256PublicKey = key(Status.SYS_ZTWAY_SETTINGS_RS256_PUBLIC_KEY)
+            .stringType()
+            .defaultValue("")
+            .note(Status.SYS_ZTWAY_SETTINGS_RS256_PUBLIC_KEY_NOTE);
+
+    private final Configuration<String> ztwayDefaultTenant = key(Status.SYS_ZTWAY_SETTINGS_DEFAULT_TENANT)
+            .stringType()
+            .defaultValue("DefaultTenant")
+            .note(Status.SYS_ZTWAY_SETTINGS_DEFAULT_TENANT_NOTE);
+
     private final Configuration<Boolean> metricsSysEnable = key(Status.SYS_METRICS_SETTINGS_SYS_ENABLE)
             .booleanType()
             .defaultValue(false)

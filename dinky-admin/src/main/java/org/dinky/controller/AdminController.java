@@ -27,6 +27,8 @@ import org.dinky.data.model.rbac.Tenant;
 import org.dinky.data.result.Result;
 import org.dinky.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,6 +75,16 @@ public class AdminController {
     @SaIgnore
     public Result<UserDTO> login(@RequestBody LoginDTO loginDTO) {
         return userService.loginUser(loginDTO);
+    }
+
+    /**
+     * Exchange nginx-injected Webwaytoken for a Dinky session.
+     */
+    @PostMapping("/login/ztway")
+    @ApiOperation(value = "Ztway Login", notes = "Login by Webwaytoken")
+    @SaIgnore
+    public Result<UserDTO> loginByZtway(HttpServletRequest request) {
+        return userService.loginByZtway(request.getHeader("Webwaytoken"));
     }
 
     /**

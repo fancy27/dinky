@@ -74,6 +74,7 @@ export type Settings = {
   flink: BaseConfigProperties[];
   maven: BaseConfigProperties[];
   ldap: BaseConfigProperties[];
+  ztway: BaseConfigProperties[];
   metrics: BaseConfigProperties[];
   resource: BaseConfigProperties[];
 };
@@ -142,6 +143,7 @@ export enum GLOBAL_SETTING_KEYS {
   SYS_LDAP_SETTINGS_CAST_USERNAME = 'sys.ldap.settings.castUsername',
   SYS_LDAP_SETTINGS_CAST_NICKNAME = 'sys.ldap.settings.castNickname',
   SYS_LDAP_SETTINGS_ENABLE = 'sys.ldap.settings.enable',
+  SYS_ZTWAY_SETTINGS_ENABLE = 'sys.ztway.settings.enable',
   SYS_METRICS_SETTINGS_SYS_ENABLE = 'sys.metrics.settings.sys.enable',
   SYS_METRICS_SETTINGS_SYS_GATHER_TIMING = 'sys.metrics.settings.sys.gatherTiming',
   SYS_METRICS_SETTINGS_FLINK_GATHER_TIMING = 'sys.metrics.settings.flink.gatherTiming',

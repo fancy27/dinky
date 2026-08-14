@@ -37,6 +37,7 @@ import { LdapConfig } from '@/pages/SettingCenter/GlobalSetting/SettingOverView/
 import { MavenConfig } from '@/pages/SettingCenter/GlobalSetting/SettingOverView/MavenConfig';
 import { MetricsConfig } from '@/pages/SettingCenter/GlobalSetting/SettingOverView/MetricsConfig';
 import { ResourcesConfig } from '@/pages/SettingCenter/GlobalSetting/SettingOverView/ResourcesConfig';
+import { ZtwayConfig } from '@/pages/SettingCenter/GlobalSetting/SettingOverView/ZtwayConfig';
 import { handleOption, queryDataByParams } from '@/services/BusinessCrud';
 import { RESPONSE_CODE } from '@/services/constants';
 import { API_CONSTANTS } from '@/services/endpoints';
@@ -59,6 +60,7 @@ const SettingOverView = () => {
     flink: [],
     maven: [],
     ldap: [],
+    ztway: [],
     metrics: [],
     resource: []
   });
@@ -103,6 +105,7 @@ const SettingOverView = () => {
       maven: mavenConfig,
       dolphinscheduler: dsConfig,
       ldap: ldapConfig,
+      ztway: ztwayConfig,
       metrics: metricsConfig,
       resource: resourceConfig
     } = data;
@@ -192,6 +195,23 @@ const SettingOverView = () => {
           />
         ),
         path: PermissionConstants.SETTING_GLOBAL_LDAP
+      },
+      {
+        key: SettingConfigKeyEnum.ZTWAY,
+        label: (
+          <TagAlignCenter>
+            <LDAPIcon size={imgSize} />
+            {l('sys.setting.ztway')}
+          </TagAlignCenter>
+        ),
+        children: (
+          <ZtwayConfig
+            auth={PermissionConstants.SETTING_GLOBAL_DINKY_EDIT}
+            onSave={handleSaveSubmit}
+            data={ztwayConfig}
+          />
+        ),
+        path: PermissionConstants.SETTING_GLOBAL_DINKY
       },
       {
         key: SettingConfigKeyEnum.METRIC,

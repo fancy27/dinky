@@ -28,6 +28,7 @@ export enum API_CONSTANTS {
   LOGIN_RECORD = '/api/log/loginRecord',
   OPERATE_LOG = '/api/log/operateLog',
   LOGIN = '/api/login',
+  LOGIN_ZTWAY = '/api/login/ztway',
   CURRENT_USER = '/api/current',
   LOGOUT = '/api/outLogin',
   CHOOSE_TENANT = '/api/chooseTenant',

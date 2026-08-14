@@ -142,6 +142,7 @@ public class SysConfigServiceImpl extends SuperServiceImpl<SysConfigMapper, SysC
 
         result.put(isFirstSystemIn.getKey(), isFirstSystemIn.getValue());
         result.put(ldapEnable.getKey(), ldapEnable.getValue());
+        result.put(instances.getZtwayEnable().getKey(), instances.getZtwayEnable().getValue());
 
         if (isFirstSystemIn.getValue()) {
             result.put(

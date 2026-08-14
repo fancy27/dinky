@@ -67,6 +67,16 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
 }
 
 /**
+ * Exchange nginx-injected Webwaytoken for a Dinky session.
+ */
+export async function ztwayLogin(options?: { [key: string]: any }) {
+  return request<API.Result>(API_CONSTANTS.LOGIN_ZTWAY, {
+    method: METHOD_CONSTANTS.POST,
+    ...(options ?? {})
+  });
+}
+
+/**
  * choose tenant
  * @param params
  */

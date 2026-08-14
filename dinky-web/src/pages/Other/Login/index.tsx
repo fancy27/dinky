@@ -20,7 +20,7 @@
 import ChooseModal from '@/pages/Other/Login/ChooseModal';
 import { gotoRedirectUrl, initSomeThing, redirectToLogin } from '@/pages/Other/Login/function';
 import LangSwitch from '@/pages/Other/Login/LangSwitch';
-import { chooseTenantSubmit, login, queryDataByParams } from '@/services/BusinessCrud';
+import { chooseTenantSubmit, login, queryDataByParams, ztwayLogin } from '@/services/BusinessCrud';
 import { API } from '@/services/data';
 import { API_CONSTANTS } from '@/services/endpoints';
 import { SaTokenInfo, UserBaseInfo } from '@/types/AuthCenter/data.d';
@@ -135,40 +135,41 @@ const Login: React.FC = () => {
     await handleChooseTenant(chooseTenantResult);
   };
 
+  const handleLoginSuccess = async (result: API.Result) => {
+    if (result.code !== 0) {
+      return;
+    }
+    await queryDataByParams<SaTokenInfo>(API_CONSTANTS.TOKEN_INFO).then((res) => {
+      if (res) {
+        setLocalStorageOfToken(JSON.stringify(res));
+      } else {
+        redirectToLogin(l('login.token.error'));
+      }
+    });
+    setInitialState((s) => ({ ...s, currentUser: result.data }));
+    await SuccessMessageAsync(l('login.result', '', { msg: result.msg, time: result.time }));
+    const tenantList: UserBaseInfo.Tenant[] = result.data.tenantList;
+    await assertTenant(tenantList);
+    if (tenantList && tenantList.length > 1) {
+      handleTenantVisible(true);
+    } else {
+      await singleTenant(tenantList);
+    }
+  };
+
   const handleSubmitLogin = async (values: API.LoginParams) => {
     try {
-      // login
       const result = await login({ ...values });
-
-      if (result.code === 0) {
-        // if login success then get token info and set it to local storage
-        await queryDataByParams<SaTokenInfo>(API_CONSTANTS.TOKEN_INFO).then((res) => {
-          if (res) {
-            setLocalStorageOfToken(JSON.stringify(res));
-          } else {
-            // 如果没有获取到token信息，直接跳转到登录页
-            redirectToLogin(l('login.token.error'));
-          }
-        });
-      }
-      setInitialState((s) => ({ ...s, currentUser: result.data }));
-      await SuccessMessageAsync(l('login.result', '', { msg: result.msg, time: result.time }));
-      /**
-       * After successful login, set the tenant list
-       */
-      const tenantList: UserBaseInfo.Tenant[] = result.data.tenantList;
-      await assertTenant(tenantList);
-      /**
-       * Determine whether the current tenant list is multiple
-       * 1. If there are multiple execution pop-up modals, the user selects a specific tenant to enter the system
-       * 2. If it is a single, only use the unique tenant id to enter the system directly
-       */
-      if (tenantList && tenantList.length > 1) {
-        handleTenantVisible(true);
-      } else {
-        await singleTenant(tenantList);
-      }
+      await handleLoginSuccess(result);
+    } catch (error: any) {
       return;
+    }
+  };
+
+  const handleZtwayLogin = async () => {
+    try {
+      const result = await ztwayLogin();
+      await handleLoginSuccess(result);
     } catch (error: any) {
       return;
     }
@@ -189,7 +190,7 @@ const Login: React.FC = () => {
     <div className={containerClassName}>
       <HelmetTitle />
       <LangSwitch />
-      <LoginForm onSubmit={handleSubmitLogin} />
+      <LoginForm onSubmit={handleSubmitLogin} onZtwayLogin={handleZtwayLogin} />
       <ChooseModal
         tenantVisible={tenantVisible}
         handleTenantVisible={() => handleTenantVisible(false)}
