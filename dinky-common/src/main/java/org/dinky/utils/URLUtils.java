@@ -23,6 +23,7 @@ import org.dinky.assertion.Asserts;
 import org.dinky.data.constant.DirConstant;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -51,10 +52,13 @@ public class URLUtils {
     public static File toFile(String urlPath) {
         try {
             URL url = new URL(urlPath);
-            URLConnection urlConnection = url.openConnection();
             if ("rs".equals(url.getProtocol())) {
-                String path = StrUtil.join(File.separator, TMP_PATH, "rs", url.getPath());
-                return FileUtil.writeFromStream(urlConnection.getInputStream(), path);
+                URLConnection urlConnection = url.openConnection();
+                // Avoid JVM URL / JarURLConnection caches returning stale jar content after overwrite
+                urlConnection.setUseCaches(false);
+                urlConnection.setDefaultUseCaches(false);
+                File target = getRsLocalFile(url.getPath());
+                return rewriteRsLocalFile(urlConnection.getInputStream(), target);
             } else if ("file".equals(url.getProtocol())) {
                 return new File(url.getPath());
             }
@@ -63,6 +67,47 @@ public class URLUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Clear the local cache file (or directory) under tmp/rs for a resource fullName.
+     *
+     * <p>Used after resource overwrite / delete so subsequent rs:// loads do not reuse stale files.
+     *
+     * @param fullName resource full name stored in DB, e.g. {@code app.jar} or {@code dir/app.jar}
+     */
+    public static void clearRsLocalCache(String fullName) {
+        if (StrUtil.isBlank(fullName)) {
+            return;
+        }
+        String relative = StrUtil.removePrefix(fullName, StrUtil.SLASH);
+        File localFile = FileUtil.file(TMP_PATH, "rs", relative);
+        if (FileUtil.exist(localFile)) {
+            FileUtil.del(localFile);
+        }
+    }
+
+    static File rewriteRsLocalFile(InputStream in, File target) {
+        // Delete existing file first so ClassLoader / JarFile does not keep the old inode
+        if (FileUtil.exist(target)) {
+            FileUtil.del(target);
+        }
+        FileUtil.mkParentDirs(target);
+        File tmpFile = FileUtil.file(target.getAbsolutePath() + ".downloading");
+        try {
+            FileUtil.writeFromStream(in, tmpFile);
+            FileUtil.move(tmpFile, target, true);
+            return target;
+        } finally {
+            if (FileUtil.exist(tmpFile)) {
+                FileUtil.del(tmpFile);
+            }
+        }
+    }
+
+    private static File getRsLocalFile(String urlPath) {
+        String relative = StrUtil.removePrefix(urlPath, StrUtil.SLASH);
+        return FileUtil.file(TMP_PATH, "rs", relative);
     }
 
     /**
